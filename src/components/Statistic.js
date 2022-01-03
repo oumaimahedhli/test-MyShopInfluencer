@@ -180,7 +180,6 @@ const Statistic = () => {
           0
         )
       : 0;
-      console.log(charts)
 
     return (
       <div>
