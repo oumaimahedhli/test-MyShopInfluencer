@@ -111,34 +111,54 @@ const Statistic = () => {
 
     const listpurchase = _.map(purchases, (purchase) => purchase);
     let infoPurchases = _.filter(listpurchase, function (o) {
-        return o.brandId == lastSegment;
-      });
+      return o.brandId == lastSegment;
+    });
     let grouped_array = _.groupBy(infoPurchases, "influencerId");
     let dataPurchases = _.map(grouped_array, (purchase) => purchase);
-
+   
     let data = [];
     if (dataPurchases) {
-      
+        
+ 
       dataPurchases.forEach((element) => {
         {
           let sumCommis = 0;
           let salesNumb = 0;
           let influencerId = "";
+          let monthName1=""
           let creation_timestamp;
           let products = [];
-          element.forEach((el) => {
+          let day =" ";
+          
+        
+
+          let dpurchase = element.map((el) => ({
+            ...el,
+            days: 
+              new Date(el.creation_timestamp * 1000).getUTCDate()
+          ,
+            months: 
+            months [ new Date(el.creation_timestamp * 1000).getUTCMonth()]
+            
+          }),[]);
+          let dpurch_grouped = _.groupBy(dpurchase, "months");
+      
+         if (dpurch_grouped["November"])
+       {  
+           if( dpurch_grouped[month.name])
+        {dpurch_grouped[month.name].forEach((el) => {
             sumCommis = sumCommis + parseFloat(el.commissionInfluencer);
             salesNumb++;
             influencerId = el.influencerId;
             creation_timestamp = el.creation_timestamp;
+            monthName1=month.name
+            day=el.days
             products.push(el.productId);
-          });
+            
+          });}}
           const productsNumber = countDistinct(products);
-          var date = new Date(creation_timestamp * 1000);
-          var monthN = date.getUTCMonth();
-          var day = date.getUTCDate();
+          
 
-          let monthName = months[monthN];
           let listInfluenceur = _.map(
             influenceurs,
             (influenceur) => influenceur
@@ -149,25 +169,25 @@ const Statistic = () => {
               infoInfluenceur = element;
             }
           });
-
-          data.push({
+        if(infoInfluenceur)
+          {data.push({
             sumCommis,
             salesNumb,
             infoInfluenceur,
             productsNumber,
-            monthName,
+            monthName1,
             day,
-          });
+          });}
         }
       });
-    }
 
+    }
     let sort = _.sortBy(data, [
       function (o) {
         return o.day;
       },
     ]);
-    let charts = _.groupBy(sort, "monthName");
+    let charts = _.groupBy(sort, "monthName1");
     const saleSum = charts[month.name]
       ? charts[month.name].reduce(
           (accumulator, current) => accumulator + current.salesNumb,
@@ -180,7 +200,6 @@ const Statistic = () => {
           0
         )
       : 0;
-
     return (
       <div>
         <Container>
