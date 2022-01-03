@@ -5,7 +5,7 @@ import { FaAngleLeft, FaAngleRight } from "react-icons/fa";
 import { getPurchases } from "../store/actions/purchaseAction";
 import { getBrandById } from "../store/actions/brandAction";
 import Figure from "react-bootstrap/Figure";
-import { Table, Button, Row, Col } from "react-bootstrap";
+import { Table, Row, Col } from "react-bootstrap";
 import Container from "react-bootstrap/Container";
 import {
   ArgumentAxis,
@@ -15,21 +15,17 @@ import {
 } from "@devexpress/dx-react-chart-material-ui";
 
 import { getinfluenceur } from "../store/actions/influenceurAction";
-const countDistinct=(arr)=>
-  {
-      let res = 1;
-   
-      for (let i = 1; i < arr.length; i++) {
-          let j = 0;
-          for (j = 0; j < i; j++)
-              if (arr[i] === arr[j])
-                  break;
-   
-          if (i === j)
-              res++;
-      }
-      return res;
+const countDistinct = (arr) => {
+  let res = 1;
+
+  for (let i = 1; i < arr.length; i++) {
+    let j = 0;
+    for (j = 0; j < i; j++) if (arr[i] === arr[j]) break;
+
+    if (i === j) res++;
   }
+  return res;
+};
 const Statistic = () => {
   const [month, setMonth] = useState({ name: "January", id: 1 });
   const [index, setIndex] = useState(0);
@@ -81,7 +77,7 @@ const Statistic = () => {
     setIndex(index1);
     setMonth(months1[index1]);
   };
-  
+
   const toggleNext = (e) => {
     let index1 = index < 11 ? index + 1 : 0;
 
@@ -114,40 +110,55 @@ const Statistic = () => {
     });
 
     const listpurchase = _.map(purchases, (purchase) => purchase);
-
-    let grouped_array = _.groupBy(listpurchase, "influencerId");
+    let infoPurchases = _.filter(listpurchase, function (o) {
+        return o.brandId == lastSegment;
+      });
+    let grouped_array = _.groupBy(infoPurchases, "influencerId");
     let dataPurchases = _.map(grouped_array, (purchase) => purchase);
 
     let data = [];
     if (dataPurchases) {
+      
       dataPurchases.forEach((element) => {
-        let sumCommis = 0;
-        let salesNumb = 0;
-        let influencerId = "";
-        let creation_timestamp;
-        let products=[]
-        element.forEach((el) => {
-          sumCommis = sumCommis + parseFloat(el.commissionInfluencer);
-          salesNumb++;
-          influencerId = el.influencerId;
-          creation_timestamp = el.creation_timestamp;
-          products.push(el.productId)
-        });
-        const productsNumber=    countDistinct(products)
-        var date = new Date(creation_timestamp * 1000);
-        var monthN = date.getUTCMonth() 
-        var day = date.getUTCDate();
+        {
+          let sumCommis = 0;
+          let salesNumb = 0;
+          let influencerId = "";
+          let creation_timestamp;
+          let products = [];
+          element.forEach((el) => {
+            sumCommis = sumCommis + parseFloat(el.commissionInfluencer);
+            salesNumb++;
+            influencerId = el.influencerId;
+            creation_timestamp = el.creation_timestamp;
+            products.push(el.productId);
+          });
+          const productsNumber = countDistinct(products);
+          var date = new Date(creation_timestamp * 1000);
+          var monthN = date.getUTCMonth();
+          var day = date.getUTCDate();
 
-        let monthName = months[monthN];
-        let listInfluenceur = _.map(influenceurs, (influenceur) => influenceur);
-        let infoInfluenceur;
-        listInfluenceur.forEach((element) => {
-          if (element.id === influencerId) {
-            infoInfluenceur = element;
-          }
-        });
-    
-        data.push({ sumCommis, salesNumb, infoInfluenceur,productsNumber, monthName, day });
+          let monthName = months[monthN];
+          let listInfluenceur = _.map(
+            influenceurs,
+            (influenceur) => influenceur
+          );
+          let infoInfluenceur;
+          listInfluenceur.forEach((element) => {
+            if (element.id === influencerId) {
+              infoInfluenceur = element;
+            }
+          });
+
+          data.push({
+            sumCommis,
+            salesNumb,
+            infoInfluenceur,
+            productsNumber,
+            monthName,
+            day,
+          });
+        }
       });
     }
 
@@ -169,6 +180,8 @@ const Statistic = () => {
           0
         )
       : 0;
+      console.log(charts)
+
     return (
       <div>
         <Container>
@@ -195,16 +208,14 @@ const Statistic = () => {
               <h3>{saleSum}</h3>
               Sales Amount
               <h3>{CommissionsSum} $</h3>
-
-            
             </Col>
             <Col>
               <div>
                 <Chart data={charts[month.name] ? charts[month.name] : []}>
                   <ArgumentAxis argumentField="months" />
-                  <ValueAxis  />
+                  <ValueAxis />
 
-                  <LineSeries  valueField="salesNumb" argumentField="day" />
+                  <LineSeries valueField="salesNumb" argumentField="day" />
                 </Chart>
               </div>
             </Col>
@@ -219,10 +230,11 @@ const Statistic = () => {
             >
               <span> {infoBrand ? infoBrand.name : null}</span>{" "}
             </Col>
-            <Col style={{
+            <Col
+              style={{
                 textAlign: "center",
-                
-              }}>
+              }}
+            >
               {sliders()}
             </Col>
             <Col></Col>
@@ -293,10 +305,14 @@ const Statistic = () => {
                           >
                             {brand.sumCommis}$
                           </td>
-                          <td style={{
+                          <td
+                            style={{
                               textAlign: "center",
                               // paddingTop: "85px",
-                            }}>{brand.productsNumber}</td>
+                            }}
+                          >
+                            {brand.productsNumber}
+                          </td>
                         </tr>
                       );
                     })
