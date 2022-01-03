@@ -36,3 +36,19 @@
     transform: rotate(360deg);
   }
 }
+
+
+.category-item {
+    padding: 8px;
+    text-align: center;
+}
+.category-item h6 {
+    font-size: 13px;
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.container {
+  max-width: 100%;
+}
