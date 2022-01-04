@@ -27,7 +27,7 @@ const countDistinct = (arr) => {
   return res;
 };
 const Statistic = () => {
-  const [month, setMonth] = useState({ name: "January", id: 1 });
+  const [month, setMonth] = useState({ name: "June", id: 6 });
   const [index, setIndex] = useState(0);
 
   const influenceurs = useSelector((state) => state.influenceur);
@@ -143,7 +143,7 @@ const Statistic = () => {
           }),[]);
           let dpurch_grouped = _.groupBy(dpurchase, "months");
       
-         if (dpurch_grouped["November"])
+         if (dpurch_grouped[month.name])
        {  
            if( dpurch_grouped[month.name])
         {dpurch_grouped[month.name].forEach((el) => {
